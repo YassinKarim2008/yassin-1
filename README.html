@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>StudyPal - Ultimate Study Companion</title>
+    <meta name="description" content="StudyPal helps you focus, study smarter with AI tools, and block distractions" />
+    <style>
+        /* Global Styles */
+        :root {
+            --primary: #4f8cff;
+            --primary-light: #e3f0ff;
+            --secondary: #ffb347;
+            --accent: #6ee7b7;
+            --danger: #ff6b6b;
+            --success: #4caf50;
+            --bg-light: #f7faff;
+            --bg-dark: #181c25;
+            --text-light: #222;
+            --text-dark: #f7faff;
+            --card-light: #fff;
+            --card-dark: #23283a;
+            --shadow: 0 4px 24px rgba(79, 140, 255, 0.08);
+
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            --radius-xl: 24px;
+
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.5s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-light);
+            line-height: 1.6;
+            transition: all var(--transition-normal);
+        }
+
+        body.dark-mode {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--primary);
+            padding: var(--space-md) var(--space-xl);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: nowrap;
+        }
+
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: var(--space-lg);
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: var(--space-sm) 0;
+            position: relative;
+            cursor: pointer;
+            outline-offset: 3px;
+        }
+
+        .nav-link:focus {
+            outline: 2px solid white;
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: white;
+            transition: width var(--transition-fast);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        /* Toggle nav button for mobile */
+        .toggle-nav {
+            display: none;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-xl);
+        }
+
+        /* Page Transitions */
+        .page {
+            display: none;
+            animation: fadeIn var(--transition-normal) forwards;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Dashboard Page */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-xl);
+            flex-wrap: wrap;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        .stat-card {
+            background: var(--card-light);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            box-shadow: var(--shadow);
+            transition: transform var(--transition-fast);
+            cursor: default;
+        }
+
+        body.dark-mode .stat-card {
+            background: var(--card-dark);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        body.dark-mode .stat-label {
+            color: var(--text-dark);
+        }
+
+        /* Focus Mode Page */
+        .focus-container {
+            display: flex;
+            gap: var(--space-xl);
+            flex-wrap: wrap;
+        }
+
+        /* AI Tools Page */
+        .ai-tools-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-xl);
+        }
+
+        /* Study Scheduler */
+        .calendar {
+            background: var(--card-light);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            box-shadow: var(--shadow);
+            margin-bottom: var(--space-xl);
+        }
+
+        body.dark-mode .calendar {
+            background: var(--card-dark);
+        }
+
+        /* Voice Command */
+        .voice-command {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-xl);
+            background: var(--card-light);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+        }
+
+        body.dark-mode .voice-command {
+            background: var(--card-dark);
+        }
+
+        /* Contact Page */
+        .contact-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--primary);
+            color: white;
+            padding: var(--space-xl);
+            text-align: center;
+            margin-top: var(--space-xl);
+        }
+
+        /* Enhanced AI Tools Styles */
+        .logic-analysis {
+            background: var(--card-light);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-xl);
+            box-shadow: var(--shadow);
+        }
+
+        body.dark-mode .logic-analysis {
+            background: var(--card-dark);
+        }
+
+        .logic-step {
+            margin-bottom: var(--space-md);
+            padding-left: var(--space-md);
+            border-left: 3px solid var(--primary);
+        }
+
+        .logic-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .enhanced-summary {
+            background: var(--accent);
+            padding: var(--space-lg);
+            border-radius: var(--radius-lg);
+            color: #222;
+            margin-bottom: var(--space-xl);
+        }
+
+        body.dark-mode .enhanced-summary {
+            color: var(--text-dark);
+        }
+
+        .summary-section {
+            margin-bottom: var(--space-md);
+        }
+
+        .summary-heading {
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+        }
+
+        /* Buttons */
+        .btn {
+            font-size: 1rem;
+            padding: var(--space-sm) var(--space-md);
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: background-color var(--transition-fast);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background-color: #3a6fe0;
+            outline: none;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover,
+        .btn-secondary:focus {
+            background-color: #e09c2c;
+            outline: none;
+        }
+
+        /* Input & Textarea */
+        input[type="text"],
+        input[type="email"],
+        textarea {
+            font-size: 1rem;
+            padding: var(--space-sm);
+            border: 1px solid #ccc;
+            border-radius: var(--radius-sm);
+            width: 300px;
+            max-width: 100%;
+            transition: border-color var(--transition-fast);
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        /* App List Items */
+        .app-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm);
+            border: 1px solid transparent;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            user-select: none;
+            transition: background-color var(--transition-fast), border-color var(--transition-fast);
+            outline-offset: 3px;
+        }
+
+        .app-item:hover,
+        .app-item:focus {
+            background-color: var(--primary-light);
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .app-item.selected {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .app-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            /* Navigation */
+            nav {
+                flex-wrap: wrap;
+                padding: var(--space-md) var(--space-sm);
+            }
+
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                background: var(--primary);
+                padding: var(--space-md);
+                border-radius: var(--radius-md);
+                margin-top: var(--space-sm);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .nav-link {
+                padding: var(--space-sm) 0;
+            }
+
+            .toggle-nav {
+                display: block;
+            }
+
+            /* Dashboard */
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            /* AI Tools and Focus container stacking */
+            .ai-tools-container,
+            .focus-container {
+                grid-template-columns: 1fr;
+                flex-direction: column;
+            }
+
+            /* Make phone visual and other components full width */
+            .phone-visual,
+            .chat-container,
+            .upload-container,
+            .summary-card {
+                width: 100%;
+                max-width: none;
+            }
+
+            section {
+                padding: var(--space-lg);
+            }
+
+            /* Buttons and inputs full width */
+            .btn,
+            input[type="text"],
+            input[type="email"],
+            textarea {
+                width: 100%;
+                box-sizing: border-box;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: var(--space-md);
+            }
+
+            .nav-logo {
+                font-size: 1.2rem;
+            }
+
+            .toggle-mode {
+                padding: var(--space-xs) var(--space-sm);
+                font-size: 0.9rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-logo" tabindex="0" aria-label="StudyPal Logo">
+            <span>📚</span>
+            <span>StudyPal</span>
+        </div>
+        <!-- Toggle nav button for mobile -->
+        <button
+            class="toggle-nav"
+            aria-label="Toggle navigation menu"
+            aria-expanded="false"
+            aria-controls="navLinks"
+        >&#9776;</button>
+
+        <div class="nav-links" id="navLinks">
+            <a href="#" class="nav-link active" data-page="dashboard" tabindex="0">Dashboard</a>
+            <a href="#" class="nav-link" data-page="focus" tabindex="0">Focus Mode</a>
+            <a href="#" class="nav-link" data-page="ai-tools" tabindex="0">AI Tools</a>
+            <a href="#" class="nav-link" data-page="scheduler" tabindex="0">Study Scheduler</a>
+            <a href="#" class="nav-link" data-page="analytics" tabindex="0">Analytics</a>
+            <a href="#" class="nav-link" data-page="contact" tabindex="0">Contact</a>
+            <button class="toggle-mode btn btn-primary" id="modeBtn" aria-pressed="false" aria-label="Toggle light and dark modes">
+                <span id="modeIcon">☀️</span>
+                <span id="modeText">Light Mode</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Dashboard Page -->
+        <div class="page active" id="dashboard" tabindex="0">
+            <div class="dashboard-header">
+                <h1>Welcome Back!</h1>
+                <div class="date-display" id="currentDate"></div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card" tabindex="0" aria-label="Focus hours this week: 12.5">
+                    <div class="stat-value" id="focusHours">12.5</div>
+                    <div class="stat-label">Focus Hours This Week</div>
+                </div>
+                <div class="stat-card" tabindex="0" aria-label="Tasks completed: 24">
+                    <div class="stat-value" id="tasksCompleted">24</div>
+                    <div class="stat-label">Tasks Completed</div>
+                </div>
+                <div class="stat-card" tabindex="0" aria-label="Productivity score: 87%">
+                    <div class="stat-value" id="productivityScore">87%</div>
+                    <div class="stat-label">Productivity Score</div>
+                </div>
+                <div class="stat-card" tabindex="0" aria-label="Current day streak: 5 days">
+                    <div class="stat-value" id="streakDays">5</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+            </div>
+            <h2>Quick Actions</h2>
+            <div class="quick-actions">
+                <button class="btn btn-primary" data-page="focus">Start Focus Session</button>
+                <button class="btn btn-secondary" data-page="ai-tools">Ask AI Question</button>
+                <button class="btn btn-secondary" data-page="scheduler">Schedule Study Time</button>
+            </div>
+        </div>
+
+        <!-- Focus Mode Page -->
+        <div class="page" id="focus" tabindex="0">
+            <h1>Focus Mode</h1>
+            <div class="focus-container">
+                <div class="phone-visual" aria-hidden="true">
+                    <div class="phone-screen" aria-label="Phone screen mockup">
+                        <div class="notif">🔔 New Message</div>
+                        <div class="notif notif-blocked">🔕 Notifications Blocked</div>
+                        <div class="focus-guide-ui">
+                            <button class="focus-toggle-btn btn btn-primary" id="focusToggle" aria-pressed="true">
+                                Focus Mode: ON
+                            </button>
+                            <div class="status" id="focusStatus">Distractions Silenced</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="focus-desc">
+                    <p><strong>Block distractions, boost productivity.</strong></p>
+                    <p>
+                        StudyPal's Focus Guide mutes notifications and blocks social media with a single tap. Enjoy a peaceful, vibrant study space—your phone, your focus!
+                    </p>
+
+                    <div class="app-selection">
+                        <h3>Select apps to block:</h3>
+                        <div class="app-list" id="appList" role="list" aria-label="Apps to block notifications from"></div>
+
+                        <button class="btn btn-primary" id="saveAppSelection">Save Selection</button>
+                    </div>
+
+                    <div class="voice-command">
+                        <h3>Voice Control</h3>
+                        <button class="btn btn-primary" id="voiceBtn" aria-pressed="false" aria-label="Enable or disable voice commands">🎤 Enable Voice Commands</button>
+                        <p class="voice-status" id="voiceStatus" aria-live="polite">Say "Start focus mode" to begin</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Tools Page -->
+        <div class="page" id="ai-tools" tabindex="0">
+            <h1>AI Study Tools</h1>
+            <div class="ai-tools-container">
+                <div class="chat-container" role="region" aria-label="AI chat tool">
+                    <div class="ai-header">
+                        <div class="ai-avatar" aria-hidden="true">🤖</div>
+                        <div>
+                            <div class="ai-name">DeepSeek AI</div>
+                            <div class="model-selection">
+                                <label for="modelSelect" class="visually-hidden">Select AI model</label>
+                                <select class="model-select" id="modelSelect" aria-label="Select AI model">
+                                    <option value="deepseek">DeepSeek</option>
+                                    <option value="gpt">GPT-4</option>
+                                    <option value="claude">Claude</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-window" id="chatWindow" role="log" aria-live="polite" tabindex="0">
+                        <div class="chat-bubble ai" style="animation-delay: 0.1s;">Hello! I'm your AI study buddy. How can I help you today?</div>
+                        <div class="chat-bubble ai" style="animation-delay: 0.3s;">You can ask me questions about your study material, request summaries, or even get motivation!</div>
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" class="chat-input" id="chatInput" placeholder="Ask me anything..." aria-label="Chat input" />
+                        <button class="btn btn-primary" id="sendMessage" aria-label="Send chat message">Send</button>
+                    </div>
+                </div>
+
+                <div class="logic-analysis" aria-live="polite" aria-atomic="true" tabindex="0">
+                    <h3>Logic Analysis</h3>
+                    <div class="logic-step">
+                        <div class="logic-title">Input Processing</div>
+                        <p id="logicStep1">Analyzing your question structure and key concepts...</p>
+                    </div>
+                    <div class="logic-step">
+                        <div class="logic-title">Knowledge Retrieval</div>
+                        <p id="logicStep2">Searching relevant information from trusted sources...</p>
+                    </div>
+                    <div class="logic-step">
+                        <div class="logic-title">Logical Reasoning</div>
+                        <p id="logicStep3">Applying deductive and inductive reasoning to formulate response...</p>
+                    </div>
+                    <div class="logic-step">
+                        <div class="logic-title">Validation</div>
+                        <p id="logicStep4">Cross-checking facts and ensuring logical consistency...</p>
+                    </div>
+                </div>
+
+                <div class="enhanced-summary" tabindex="0" aria-label="Enhanced summary">
+                    <h3>Enhanced Summary</h3>
+                    <div class="summary-section">
+                        <div class="summary-heading">Key Concepts</div>
+                        <p id="summaryConcepts">Identified 5 core concepts with 87% relevance score</p>
+                    </div>
+                    <div class="summary-section">
+                        <div class="summary-heading">Relationships</div>
+                        <p id="summaryRelationships">Mapped 12 conceptual relationships in the material</p>
+                    </div>
+                    <div class="summary-section">
+                        <div class="summary-heading">Knowledge Gaps</div>
+                        <p id="summaryGaps">Detected 3 potential areas needing further study</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Study Scheduler Page -->
+        <div class="page" id="scheduler" tabindex="0">
+            <h1>Study Scheduler</h1>
+            <div class="calendar" aria-label="Study schedule calendar" role="application">
+                <div id="calendar"></div>
+            </div>
+            <div class="study-sessions" aria-live="polite">
+                <h3>Upcoming Sessions</h3>
+                <div id="upcomingSessions" tabindex="0"></div>
+            </div>
+        </div>
+
+        <!-- Analytics Page -->
+        <div class="page" id="analytics" tabindex="0">
+            <h1>Progress Analytics</h1>
+            <div class="analytics-charts">
+                <div class="chart-container" aria-label="Weekly focus time chart">
+                    <canvas id="focusTimeChart" role="img" aria-describedby="focusTimeDesc"></canvas>
+                    <div id="focusTimeDesc" class="visually-hidden">Bar chart showing weekly focus time per day</div>
+                </div>
+                <div class="chart-container" aria-label="Productivity trend chart">
+                    <canvas id="productivityChart" role="img" aria-describedby="productivityDesc"></canvas>
+                    <div id="productivityDesc" class="visually-hidden">Graph showing productivity score trend this week</div>
+                </div>
+            </div>
+            <div class="analytics-stats" aria-live="polite" tabindex="0">
+                <h3>Performance Metrics</h3>
+                <div id="performanceMetrics"></div>
+            </div>
+        </div>
+
+        <!-- Contact Page -->
+        <div class="page" id="contact" tabindex="0">
+            <h1>Contact Us</h1>
+            <div class="contact-form">
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label for="name">Name</label><br />
+                        <input type="text" id="name" name="name" required aria-required="true" />
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label><br />
+                        <input type="email" id="email" name="email" required aria-required="true" />
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label><br />
+                        <textarea id="message" name="message" rows="5" required aria-required="true"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" aria-label="Send message">Send Message</button>
+                </form>
+            </div>
+            <div class="app-info" tabindex="0" aria-label="About StudyPal information">
+                <h3>About StudyPal</h3>
+                <p>Version 2.0.0</p>
+                <p>© 2023 StudyPal Team</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2023 StudyPal. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const modeBtn = document.getElementById('modeBtn');
+        const modeIcon = document.getElementById('modeIcon');
+        const modeText = document.getElementById('modeText');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const pages = document.querySelectorAll('.page');
+        const currentDate = document.getElementById('currentDate');
+        const focusToggle = document.getElementById('focusToggle');
+        const focusStatus = document.getElementById('focusStatus');
+        const appList = document.getElementById('appList');
+        const saveAppBtn = document.getElementById('saveAppSelection');
+        const chatWindow = document.getElementById('chatWindow');
+        const chatInput = document.getElementById('chatInput');
+        const sendMessageBtn = document.getElementById('sendMessage');
+        const modelSelect = document.getElementById('modelSelect');
+        const voiceBtn = document.getElementById('voiceBtn');
+        const voiceStatus = document.getElementById('voiceStatus');
+        const contactForm = document.getElementById('contactForm');
+        const quickActionBtns = document.querySelectorAll('.quick-actions .btn');
+        const toggleNavBtn = document.querySelector('.toggle-nav');
+        const navLinksContainer = document.getElementById('navLinks');
+
+        // App data
+        const apps = [
+            { name: 'WhatsApp', icon: '💬' },
+            { name: 'Instagram', icon: '📷' },
+            { name: 'Facebook', icon: '👍' },
+            { name: 'Twitter', icon: '🐦' },
+            { name: 'TikTok', icon: '🎵' },
+            { name: 'YouTube', icon: '▶️' },
+            { name: 'Gmail', icon: '✉️' },
+            { name: 'Discord', icon: '💬' },
+            { name: 'Reddit', icon: '📱' },
+            { name: 'Netflix', icon: '🎬' },
+            { name: 'Spotify', icon: '🎵' },
+            { name: 'Games', icon: '🎮' }
+        ];
+
+        // Selected apps
+        let selectedApps = [];
+        let recognition = null;
+
+        // Initialize the app
+        function init() {
+            // Set current date
+            updateDate();
+
+            // Check for dark mode preference
+            checkDarkModePreference();
+
+            // Set up navigation
+            setupNavigation();
+
+            // Initialize focus mode
+            initFocusMode();
+
+            // Initialize app list & load saved apps
+            loadSavedApps();
+
+            // Initialize AI chat
+            setupChat();
+
+            // Initialize voice commands
+            initVoiceCommands();
+
+            // Initialize contact form
+            setupContactForm();
+
+            // Initialize scheduler
+            initScheduler();
+
+            // Initialize analytics
+            initAnalytics();
+
+            // Set up quick actions
+            setupQuickActions();
+
+            // Setup nav toggle button
+            setupNavToggle();
+
+            // Setup focus mode toggle button
+            focusToggle.addEventListener('click', toggleFocusMode);
+
+            // Setup save apps selection button
+            saveAppBtn.addEventListener('click', saveAppSelection);
+
+            // Setup theme toggle button
+            modeBtn.addEventListener('click', toggleMode);
+        }
+
+        // Date functions
+        function updateDate() {
+            const now = new Date();
+            currentDate.textContent = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // Dark Mode Functions
+        function toggleMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+
+            modeIcon.textContent = isDark ? '🌙' : '☀️';
+            modeText.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+
+            localStorage.setItem('darkMode', isDark);
+        }
+
+        function checkDarkModePreference() {
+            const savedPreference = localStorage.getItem('darkMode');
+            const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            if (savedPreference === 'true' || (savedPreference === null && systemPrefersDark)) {
+                document.body.classList.add('dark-mode');
+                modeIcon.textContent = '🌙';
+                modeText.textContent = 'Dark Mode';
+                modeBtn.setAttribute('aria-pressed', 'true');
+            } else {
+                modeBtn.setAttribute('aria-pressed', 'false');
+            }
+        }
+
+        // Navigation Functions
+        function setupNavigation() {
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageId = link.getAttribute('data-page');
+                    showPage(pageId);
+                    closeNavOnMobile();
+                });
+            });
+        }
+
+        function showPage(pageId) {
+            pages.forEach(page => {
+                page.classList.remove('active');
+                if (page.id === pageId) {
+                    page.classList.add('active');
+                    page.focus();
+                }
+            });
+
+            // Update active nav link
+            navLinks.forEach(link => {
+                link.classList.toggle('active', link.getAttribute('data-page') === pageId);
+            });
+        }
+
+        // Quick Actions
+        function setupQuickActions() {
+            quickActionBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageId = btn.getAttribute('data-page');
+                    showPage(pageId);
+                });
+            });
+        }
+
+        // Focus Mode Functions
+        function toggleFocusMode() {
+            const isPressed = focusToggle.getAttribute('aria-pressed') === 'true';
+            focusToggle.setAttribute('aria-pressed', !isPressed);
+
+            if (isPressed) {
+                focusToggle.textContent = 'Focus Mode: OFF';
+                focusStatus.textContent = 'Distractions Allowed';
+                focusStatus.style.color = 'var(--danger)';
+            } else {
+                focusToggle.textContent = 'Focus Mode: ON';
+                focusStatus.textContent = 'Distractions Silenced';
+                focusStatus.style.color = 'var(--accent)';
+            }
+
+            localStorage.setItem('focusMode', !isPressed);
+        }
+
+        function initFocusMode() {
+            const savedFocusMode = localStorage.getItem('focusMode');
+            if (savedFocusMode === 'true') {
+                focusToggle.setAttribute('aria-pressed', 'true');
+                focusToggle.textContent = 'Focus Mode: ON';
+                focusStatus.textContent = 'Distractions Silenced';
+                focusStatus.style.color = 'var(--accent)';
+            } else {
+                focusToggle.setAttribute('aria-pressed', 'false');
+                focusToggle.textContent = 'Focus Mode: OFF';
+                focusStatus.textContent = 'Distractions Allowed';
+                focusStatus.style.color = 'var(--danger)';
+            }
+        }
+
+        // App Selection Functions
+        function renderAppList() {
+            appList.innerHTML = '';
+            apps.forEach(app => {
+                const isSelected = selectedApps.includes(app.name);
+                const appElement = document.createElement('div');
+                appElement.className = `app-item${isSelected ? ' selected' : ''}`;
+                appElement.setAttribute('tabindex', '0');
+                appElement.setAttribute('role', 'button');
+                appElement.setAttribute('aria-pressed', isSelected);
+                appElement.setAttribute('aria-label', `${app.name} ${isSelected ? 'selected' : 'not selected'}`);
+
+                appElement.innerHTML = `
+                    <div class="app-icon">${app.icon}</div>
+                    <div class="app-name">${app.name}</div>
+                `;
+
+                appElement.addEventListener('click', () => toggleAppSelection(app.name));
+                appElement.addEventListener('keydown', e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleAppSelection(app.name);
+                    }
+                });
+                appList.appendChild(appElement);
+            });
+        }
+
+        function toggleAppSelection(appName) {
+            const index = selectedApps.indexOf(appName);
+            if (index === -1) {
+                selectedApps.push(appName);
+            } else {
+                selectedApps.splice(index, 1);
+            }
+            renderAppList();
+        }
+
+        function saveAppSelection() {
+            localStorage.setItem('blockedApps', JSON.stringify(selectedApps));
+            alert(`Notifications from ${selectedApps.length} apps will be blocked during focus mode.`);
+        }
+
+        function loadSavedApps() {
+            const savedApps = localStorage.getItem('blockedApps');
+            if (savedApps) {
+                selectedApps = JSON.parse(savedApps);
+            } else {
+                selectedApps = [];
+            }
+            renderAppList();
+        }
+
+        // AI Chat Functions
+        function setupChat() {
+            sendMessageBtn.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+        }
+
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            addMessageToChat(message, 'user');
+            chatInput.value = '';
+
+            updateLogicAnalysis(message);
+
+            setTimeout(() => {
+                const aiResponse = generateAIResponse(message);
+                addMessageToChat(aiResponse, 'ai');
+                updateSummary(message);
+            }, 1000);
+        }
+
+        function addMessageToChat(message, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.className = `chat-bubble ${sender}`;
+            messageElement.textContent = message;
+            messageElement.style.animationDelay = `${chatWindow.children.length * 0.1}s`;
+            chatWindow.appendChild(messageElement);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        function updateLogicAnalysis(question) {
+            const steps = [
+                `Analyzing: "${question.substring(0, 20)}${question.length > 20 ? '...' : ''}"`,
+                "Retrieved relevant concepts from knowledge base",
+                "Constructing logical framework for response",
+                "Validating against academic sources"
+            ];
+
+            document.getElementById('logicStep1').textContent = steps[0];
+            setTimeout(() => {
+                document.getElementById('logicStep2').textContent = steps[1];
+            }, 300);
+            setTimeout(() => {
+                document.getElementById('logicStep3').textContent = steps[2];
+            }, 600);
+            setTimeout(() => {
+                document.getElementById('logicStep4').textContent = steps[3];
+            }, 900);
+        }
+
+        function updateSummary(question) {
+            const concepts = Math.floor(Math.random() * 5) + 3;
+            const relationships = Math.floor(Math.random() * 10) + 5;
+            const gaps = Math.floor(Math.random() * 3) + 1;
+
+            document.getElementById('summaryConcepts').textContent =
+                `Identified ${concepts} core concepts with ${Math.floor(Math.random() * 20) + 80}% relevance score`;
+            document.getElementById('summaryRelationships').textContent =
+                `Mapped ${relationships} conceptual relationships in the material`;
+            document.getElementById('summaryGaps').textContent =
+                `Detected ${gaps} potential areas needing further study`;
+        }
+
+        function generateAIResponse(message) {
+            const model = modelSelect.value;
+            const questionType = classifyQuestion(message);
+            const keywords = extractKeywords(message);
+
+            let response = "";
+
+            switch (questionType) {
+                case "definition":
+                    response = `The term "${keywords[0]}" refers to ${generateDefinition(keywords[0])}. `;
+                    response += `This concept is important because ${generateImportance(keywords[0])}.`;
+                    break;
+                case "comparison":
+                    response = `Comparing ${keywords[0]} and ${keywords[1]}: `;
+                    response += `Similarities include ${generateSimilarities(keywords[0], keywords[1])}. `;
+                    response += `Key differences are ${generateDifferences(keywords[0], keywords[1])}.`;
+                    break;
+                case "process":
+                    response = `The process involves these steps: ${generateProcessSteps(keywords)}. `;
+                    response += `Common challenges include ${generateChallenges(keywords)}.`;
+                    break;
+                default:
+                    response = `Regarding ${keywords.join(', ')}, the key points are: `;
+                    response += `${generateKeyPoints(keywords)}. `;
+                    response += `Would you like me to elaborate on any specific aspect?`;
+            }
+
+            return `[${model.toUpperCase()}] ${response}`;
+        }
+
+        function extractKeywords(text) {
+            const commonWords = ["what", "how", "why", "the", "a", "an", "is", "are", "does", "do"];
+            const words = text.toLowerCase().split(/\s+/);
+            return words.filter(word =>
+                word.length > 3 &&
+                !commonWords.includes(word) &&
+                /^[a-z]+$/.test(word)
+            ).slice(0, 3);
+        }
+
+        function classifyQuestion(text) {
+            text = text.toLowerCase();
+            if (text.includes(" vs ") || text.includes("difference between")) {
+                return "comparison";
+            }
+            if (text.startsWith("what is") || text.startsWith("define")) {
+                return "definition";
+            }
+            if (text.includes("process") || text.includes("steps")) {
+                return "process";
+            }
+            return "general";
+        }
+
+        function generateDefinition(term) {
+            const definitions = {
+                "photosynthesis": "the process by which green plants use sunlight to synthesize foods from carbon dioxide and water",
+                "mitochondria": "the powerhouse of the cell that generates most of the cell's supply of ATP",
+                "algorithm": "a set of rules or procedures for solving problems or accomplishing tasks",
+                "gravity": "the force that attracts objects with mass toward each other",
+                "democracy": "a system of government where power is vested in the people"
+            };
+            return definitions[term.toLowerCase()] || "a fundamental concept in this field";
+        }
+
+        function generateImportance(term) {
+            const importance = {
+                "photosynthesis": "it's the foundation of nearly all food chains and produces oxygen",
+                "mitochondria": "they provide energy for cellular functions",
+                "algorithm": "they form the basis of computer programming and problem-solving",
+                "gravity": "it governs the motion of celestial bodies and keeps us grounded",
+                "democracy": "it protects individual freedoms and promotes equal representation"
+            };
+            return importance[term.toLowerCase()] || "it's essential for understanding related concepts";
+        }
+
+        function generateSimilarities(term1, term2) {
+            const similarities = {
+                "mitochondria,chloroplast": "both are organelles involved in energy conversion",
+                "photosynthesis,respiration": "both involve energy transformation in cells",
+                "democracy,republic": "both are systems of government with elected representatives"
+            };
+            const key = `${term1},${term2}`.toLowerCase();
+            return similarities[key] || "their shared characteristics in function and purpose";
+        }
+
+        function generateDifferences(term1, term2) {
+            const differences = {
+                "mitochondria,chloroplast": "mitochondria produce energy while chloroplasts capture it",
+                "photosynthesis,respiration": "photosynthesis stores energy while respiration releases it",
+                "democracy,republic": "democracy is direct rule while republic uses representatives"
+            };
+            const key = `${term1},${term2}`.toLowerCase();
+            return differences[key] || "their structural components and specific mechanisms";
+        }
+
+        function generateProcessSteps(keywords) {
+            const processes = {
+                "photosynthesis": "1) Light absorption 2) Water splitting 3) ATP production 4) Carbon fixation",
+                "mitosis": "1) Prophase 2) Metaphase 3) Anaphase 4) Telophase",
+                "research": "1) Question formulation 2) Literature review 3) Data collection 4) Analysis"
+            };
+            const key = keywords[0].toLowerCase();
+            return processes[key] || "1) Preparation 2) Execution 3) Review 4) Completion";
+        }
+
+        function generateChallenges(keywords) {
+            const challenges = {
+                "photosynthesis": "light availability and carbon dioxide concentration",
+                "mitosis": "proper chromosome alignment and separation",
+                "research": "bias control and data reliability"
+            };
+            const key = keywords[0].toLowerCase();
+            return challenges[key] || "resource limitations and time constraints";
+        }
+
+        function generateKeyPoints(keywords) {
+            const keyPoints = {
+                "photosynthesis": "light-dependent reactions, Calvin cycle, chlorophyll importance",
+                "mitochondria": "ATP production, cellular respiration, inner membrane structure",
+                "democracy": "popular sovereignty, free elections, protection of minority rights"
+            };
+            const key = keywords[0].toLowerCase();
+            return keyPoints[key] || "foundational principles, practical applications, current research";
+        }
+
+        // Voice Command Functions
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        function initVoiceCommands() {
+            if (SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+
+                recognition.onresult = (event) => {
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript.trim().toLowerCase();
+                        processVoiceCommand(transcript);
+                    }
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Voice recognition error', event.error);
+                    voiceStatus.textContent = "Voice command error. Try again.";
+                };
+
+                voiceBtn.addEventListener('click', toggleVoiceRecognition);
+            } else {
+                voiceBtn.style.display = 'none';
+                voiceStatus.textContent = "Voice commands not supported in your browser";
+            }
+        }
+
+        function toggleVoiceRecognition() {
+            if (recognition) {
+                if (voiceBtn.getAttribute('aria-pressed') === 'false') {
+                    recognition.start();
+                    voiceBtn.setAttribute('aria-pressed', 'true');
+                    voiceBtn.textContent = "🔴 Stop Voice Commands";
+                    voiceStatus.textContent = "Listening... Say commands like 'Start focus mode'";
+                } else {
+                    recognition.stop();
+                    voiceBtn.setAttribute('aria-pressed', 'false');
+                    voiceBtn.textContent = "🎤 Enable Voice Commands";
+                    voiceStatus.textContent = "Voice commands ready";
+                }
+            }
+        }
+
+        function processVoiceCommand(command) {
+            voiceStatus.textContent = `Heard: "${command}"`;
+
+            if (command.includes('dark mode')) {
+                toggleMode();
+                voiceStatus.textContent = "Toggled dark mode";
+            } else if (command.includes('light mode')) {
+                document.body.classList.remove('dark-mode');
+                voiceStatus.textContent = "Set to light mode";
+            } else if (command.includes('dashboard')) {
+                showPage('dashboard');
+                voiceStatus.textContent = "Showing dashboard";
+            } else if (command.includes('focus mode')) {
+                showPage('focus');
+                if (command.includes('start') || command.includes('on')) {
+                    focusToggle.setAttribute('aria-pressed', 'true');
+                    focusToggle.textContent = 'Focus Mode: ON';
+                    focusStatus.textContent = 'Distractions Silenced';
+                    focusStatus.style.color = 'var(--accent)';
+                }
+                voiceStatus.textContent = "Focus mode settings";
+            } else if (command.includes('analytics')) {
+                showPage('analytics');
+                voiceStatus.textContent = "Showing analytics";
+            } else if (command.includes('ask') || command.includes('question')) {
+                const question = command.replace(/ask|question/i, '').trim();
+                if (question) {
+                    showPage('ai-tools');
+                    chatInput.value = question;
+                    sendMessage();
+                    voiceStatus.textContent = `Asked: "${question}"`;
+                }
+            } else if (command.includes('schedule') || command.includes('calendar')) {
+                showPage('scheduler');
+                voiceStatus.textContent = "Showing scheduler";
+            }
+        }
+
+        // Contact Form Functions
+        function setupContactForm() {
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const formData = new FormData(contactForm);
+                const data = Object.fromEntries(formData.entries());
+
+                // In a real app, you would send this to a server
+                console.log('Form submitted:', data);
+                alert('Thank you for your message! We will get back to you soon.');
+                contactForm.reset();
+            });
+        }
+
+        // Scheduler Functions
+        function initScheduler() {
+            const calendar = document.getElementById('calendar');
+            const upcomingSessions = document.getElementById('upcomingSessions');
+
+            calendar.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <h3>Study Schedule Calendar</h3>
+                    <p>Select dates to schedule study sessions</p>
+                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-top: 20px;">
+                        ${Array.from({ length: 28 }, (_, i) =>
+                    `<div tabindex="0" role="button" aria-pressed="false" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px; cursor: pointer;">${i + 1}</div>`
+                ).join('')}
+                    </div>
+                </div>
+            `;
+
+            upcomingSessions.innerHTML = `
+                <div style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; padding: 10px; background: #f5f5f5; margin-bottom: 5px;">
+                        <span>Tomorrow - Math Review</span>
+                        <span>2:00 PM - 3:30 PM</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 10px; background: #f5f5f5; margin-bottom: 5px;">
+                        <span>Friday - History Essay</span>
+                        <span>4:00 PM - 5:30 PM</span>
+                    </div>
+                </div>
+            `;
+
+            // Add click/keyboard handlers for calendar days
+            calendar.querySelectorAll('div[role="button"]').forEach(day => {
+                day.addEventListener('click', () => scheduleSession(day));
+                day.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        scheduleSession(day);
+                    }
+                });
+            });
+
+            function scheduleSession(day) {
+                const date = day.textContent;
+                const subject = prompt("What would you like to study on this day?");
+                if (subject) {
+                    const time = prompt("What time? (e.g., 2:00 PM - 3:30 PM)");
+                    if (time) {
+                        const newSession = document.createElement('div');
+                        newSession.style = "display: flex; justify-content: space-between; padding: 10px; background: #f5f5f5; margin-bottom: 5px;";
+                        newSession.innerHTML = `<span>Day ${date} - ${subject}</span><span>${time}</span>`;
+                        upcomingSessions.querySelector('div').prepend(newSession);
+                        alert('Study session scheduled!');
+                    }
+                }
+            }
+        }
+
+        // Analytics Functions
+        function initAnalytics() {
+            const focusTimeChart = document.getElementById('focusTimeChart');
+            const productivityChart = document.getElementById('productivityChart');
+            const performanceMetrics = document.getElementById('performanceMetrics');
+
+            // Simple mock charts using div heights for demo
+
+            focusTimeChart.innerHTML = `
+                <div style="text-align: center; padding: 20px; background: #f5f5f5; border-radius: 10px;">
+                    <h4>Weekly Focus Time</h4>
+                    <div style="height: 200px; display: flex; align-items: flex-end; justify-content: space-around; margin-top: 20px;">
+                        ${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day =>
+                    `<div style="display: flex; flex-direction: column; align-items: center;">
+                                <div style="width: 30px; height: ${Math.random() * 150 + 50}px; background: var(--primary); border-radius: 4px;"></div>
+                                <span style="margin-top: 5px;">${day}</span>
+                            </div>`
+                ).join('')}
+                    </div>
+                </div>
+            `;
+
+            productivityChart.innerHTML = `
+                <div style="text-align: center; padding: 20px; background: #f5f5f5; border-radius: 10px; margin-top: 20px;">
+                    <h4>Productivity Trend</h4>
+                    <div style="height: 200px; display: flex; align-items: center; justify-content: center; margin-top: 20px;">
+                        <div style="width: 80%; height: 20px; background: linear-gradient(90deg, var(--accent) 75%, #eee 25%); border-radius: 10px;"></div>
+                    </div>
+                    <p style="margin-top: 10px;">75% productivity score this week</p>
+                </div>
+            `;
+
+            performanceMetrics.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 20px;">
+                    <div style="padding: 15px; background: #f5f5f5; border-radius: 10px;">
+                        <h4>Focus Sessions</h4>
+                        <p>12 sessions this week</p>
+                    </div>
+                    <div style="padding: 15px; background: #f5f5f5; border-radius: 10px;">
+                        <h4>Avg. Duration</h4>
+                        <p>45 minutes per session</p>
+                    </div>
+                    <div style="padding: 15px; background: #f5f5f5; border-radius: 10px;">
+                        <h4>Distractions</h4>
+                        <p>3.2 per hour</p>
+                    </div>
+                    <div style="padding: 15px; background: #f5f5f5; border-radius: 10px;">
+                        <h4>Retention</h4>
+                        <p>82% recall rate</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Navigation toggle for mobile
+        function setupNavToggle() {
+            toggleNavBtn.addEventListener('click', () => {
+                const expanded = toggleNavBtn.getAttribute('aria-expanded') === 'true';
+                toggleNavBtn.setAttribute('aria-expanded', !expanded);
+                navLinksContainer.classList.toggle('active');
+            });
+        }
+
+        // Close nav on mobile after clicking a link
+        function closeNavOnMobile() {
+            if (window.innerWidth <= 768 && navLinksContainer.classList.contains('active')) {
+                navLinksContainer.classList.remove('active');
+                toggleNavBtn.setAttribute('aria-expanded', 'false');
+            }
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
